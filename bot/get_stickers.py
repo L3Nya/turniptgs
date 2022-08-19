@@ -76,6 +76,7 @@ async def get_animated_stickers(
         s.name = "sticker.tgs"
         write_sticker(part_json, s)
         s.seek(0)
+        stickers.append(s)
     return stickers, None
 
 
