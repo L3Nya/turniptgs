@@ -1,0 +1,22 @@
+import re
+from pathlib import Path
+
+MIN_EMOJI_SET_WIDTH = 2
+MAX_EMOJI_SET_WIDTH = 8
+
+STICKER_SET_WIDTH = 5
+
+WIDTH_KEYBOARD_ROW_SIZE = 3
+
+SET_TITLE_MAX_LENGTH = 64
+SET_SHORT_NAME_MAX_LENGTH = 64
+
+MAX_STICKERS = 50
+MAX_EMOJI = 50
+
+SET_SHORT_NAME_REGEX = re.compile("^(?:[a-zA-Z0-9]_?)+$")
+
+WEB_APP_SPLIT_TIMEOUT = 60 * 60 * 24  # 24 hours
+
+WORK_DIR = Path("./stickers")
+WORK_DIR.mkdir(exist_ok=True)

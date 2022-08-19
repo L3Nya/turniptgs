@@ -1,0 +1,4 @@
+STEP_X = -512
+STEP_Y = -512
+WIDTH = 5
+HEIGHT = 5

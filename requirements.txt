@@ -1,0 +1,14 @@
+# pyrogram
+# use this until https://github.com/pyrogram/pyrogram/pull/1065 gets merged
+pyrogram
+loguru
+tgcrypto
+emoji
+
+aiohttp
+gunicorn
+
+aiofiles
+
+asynccpu
+asyncffmpeg

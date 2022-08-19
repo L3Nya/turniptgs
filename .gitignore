@@ -1,0 +1,8 @@
+__pycache__
+stickers/
+unknown_errors.txt
+test*
+.env
+venv
+*.session
+.vim
