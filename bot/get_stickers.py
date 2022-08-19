@@ -93,6 +93,7 @@ async def position_updater(client, task, msg):
                     prev_pos = pos
                 await asyncio.sleep(5)
             else:
+                await msg.edit_text(f"Splitting.. Pleas wait..")
                 await task
         except asyncio.CancelledError:
             break
