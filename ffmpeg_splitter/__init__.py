@@ -22,10 +22,19 @@ async def split_part_spec(
     args = (
         ffmpeg.input(input_file)
         .filter(
+            "format",
+            "rgba"
+        )
+        .filter(
+            "pad",
+            w=f"ceil(iw/{width}.0)*{width}",
+            h=f"ceil(ih/{height}.0)*{height}",
+            color="#00000000"
+        )
+        .filter(
             "crop",
             w=f"iw/{width}",
-            # h=f"ih/{height}",
-            h=f"iw/{width}",
+            h=f"ih/{height}",
             x=f"{x}*iw/{width}",
             y=f"{y}*ih/{height}",
             keep_aspect="0",
@@ -34,7 +43,7 @@ async def split_part_spec(
         .filter(
             "scale",
             w=part_width,
-            h="-1",
+            h=part_height,
             eval="init",
             flags="bicubic",
             interl=0,
@@ -50,6 +59,7 @@ async def split_part_spec(
             },
         )
     )
+    # print(" ".join(args.compile()))
     return args
 
 
