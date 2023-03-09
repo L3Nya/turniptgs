@@ -12,7 +12,6 @@ from pyrogram.handlers.message_handler import MessageHandler
 
 from .config import API_ID, API_HASH, BOT_TOKEN, TEST_MODE
 
-# from .create_sticker_set import CreateStickerSet
 from .queue_manager import QueueManager
 
 
@@ -145,43 +144,6 @@ class Client(PyroClient):
         software: str | None = None,
     ):
         peer = await self.resolve_peer(user_id)
-        # try:
-        #    await self.session.send(
-        #                    raw.functions.InvokeWithLayer(
-        #                        layer=145,
-        #                        query=raw.functions.InitConnection(
-        #                            api_id=await self.storage.api_id(),
-        #                            app_version=self.app_version,
-        #                            device_model=self.device_model,
-        #                            system_version=self.system_version,
-        #                            system_lang_code=self.lang_code,
-        #                            lang_code=self.lang_code,
-        #                            lang_pack="",
-        #                            query=raw.functions.help.GetConfig(),
-        #                        )
-        #                    ),
-        #                    timeout=1
-        #                )
-        # except:
-        #    pass
-        # print("invoked! creating..")
-        # return await self.session.send(
-        #    raw.functions.InvokeWithLayer(
-        #        layer=145,
-        #        query=CreateStickerSet(
-        #            user_id=peer,
-        #            title=title,
-        #            short_name=short_name,
-        #            stickers=stickers,
-        #            masks=masks,
-        #            animated=animated,
-        #            videos=videos,
-        #            emojis=emojis,
-        #            thumb=thumb,
-        #            software=software
-        #        )
-        #    )
-        # )
         return await self.invoke(
             raw.functions.stickers.CreateStickerSet(
                 user_id=peer,
@@ -191,7 +153,7 @@ class Client(PyroClient):
                 masks=masks,
                 animated=animated,
                 videos=videos,
-                # emojis=emojis,
+                emojis=emojis,
                 thumb=thumb,
                 software=software,
             )

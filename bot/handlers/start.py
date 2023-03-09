@@ -6,13 +6,15 @@ from hashlib import blake2b
 from loguru import logger
 from pyrogram import filters, StopPropagation, raw
 from pyrogram.errors.exceptions.not_acceptable_406 import StickersetInvalid
-from pyrogram.errors.exceptions.bad_request_400 import StickersTooMuch
+from pyrogram.errors.exceptions.bad_request_400 import BadRequest, StickersTooMuch
 from pyrogram.types import ReplyKeyboardRemove
 
 from ..bot import bot
 from ..constants import (
-    MAX_EMOJI,
-    MAX_STICKERS,
+    MAX_EMOJI_IMAGES,
+    MAX_EMOJI_ANIMATED,
+    MAX_STICKERS_ANIMATED,
+    MAX_STICKERS_IMAGES,
     MIN_EMOJI_SET_WIDTH,
     MAX_EMOJI_SET_WIDTH,
     STICKER_SET_WIDTH,
@@ -20,7 +22,7 @@ from ..constants import (
     SET_SHORT_NAME_MAX_LENGTH,
     SET_SHORT_NAME_REGEX,
 )
-from ..config import STATIC_STICKERS_ENABLED, VIDEO_STICKERS_ENABLED, WEB_APP_URL
+from ..config import STATIC_STICKERS_ENABLED, VIDEO_STICKERS_ENABLED, WEB_APP_URL, KEEP_CACHE
 from ..utils.is_only_emoji import is_only_emoji
 from ..keyboards import create_set_type_keyboard, create_width_keyboard
 from ..get_stickers import (
@@ -164,8 +166,7 @@ async def get_is_emoji_set(client, chat_id):
         if text == sticker_set_button.text:
             is_emoji_set = False
         elif text == emoji_set_button.text:
-            await message.reply("Emoji set creation is not supported by Telegram public API yet")
-            # is_emoji_set = True
+            is_emoji_set = True
         else:
             await message.reply("Click the button")
     return is_emoji_set
@@ -204,11 +205,7 @@ async def start(client, message):
         set_title = None
         set_type = get_emoji_type(s)
         is_emoji_set = s.set.emojis
-    if is_emoji_set:
-        await client.send_message(
-            chat_id, "Emoji sets are not supported yet so this option was disabled."
-        )
-        is_emoji_set = False
+        await message.reply(f"{'Emoji' if is_emoji_set else 'Sticker'} set already exists, will add stickers into it.")
 
     set_width = await get_set_width(client, chat_id, is_emoji_set)
     # set_width = 5
@@ -234,9 +231,11 @@ async def start(client, message):
         set_height = math.ceil(set_width * (sticker.height / sticker.width))
 
     n = set_width * set_height
+    link = "t.me/addstickers/" if not is_emoji_set else "t.me/addemoji/"
+    link += set_short_name
     await message.reply(
         f"Title: {set_title}\n"
-        f"Short name: {set_short_name}\n"
+        f"Link: {link}\n"
         f"Set type: {'emoji' if is_emoji_set else 'regular'} {set_type}\n"
         f"Width: {set_width} [{part_width}]\n"
         f"Height: {set_height} [{part_height}]\n"
@@ -245,10 +244,13 @@ async def start(client, message):
     # TODO: make thumbnail for static and video sets: 100x100 resolution
     thumb = None
 
-    if (tn := (n + (len(s.documents) if s else 0))) > (
-        mx := (MAX_EMOJI if is_emoji_set else MAX_STICKERS)
-    ):
-        await message.reply(f"Too much stickers in the set ({tn} > {mx})")
+    max_stickers = (MAX_EMOJI_ANIMATED if is_animated or is_video else MAX_EMOJI_IMAGES) if is_emoji_set else (MAX_STICKERS_ANIMATED if is_animated or is_video else MAX_STICKERS_IMAGES)
+
+    if (n + (len(s.documents) if s else 0)) > max_stickers: #and not is_emoji_set:
+        if s and s.documents:
+            await message.reply(f"Not enough free sticker space. Required: {n}. Used: {len(s.documents)}/{max_stickers}." )
+        else:
+            await message.reply("Too much stickers ({n} > {max_stickers})")
         return
 
     if is_animated:
@@ -338,6 +340,9 @@ async def start(client, message):
             except StickersTooMuch:
                 await msg.edit_text("Too much stickers in the set")
                 return
+            except BadRequest as e:
+                await msg.edit_text(f"Error: {str(e)}")
+                return
         else:
             await msg.edit_text("Adding stickers to set..")
             for sticker in stickers:
@@ -346,10 +351,11 @@ async def start(client, message):
                         set_short_name, sticker
                     )
                 except StickersTooMuch:
-                    await msg.edit_text(f"Too much stickers in the set")
-                    break
-        link = "t.me/addstickers/" if not is_emoji_set else "t.me/addemoji/"
-        link += s.set.short_name
+                   await msg.edit_text(f"Too much stickers in the set")
+                   return
+                except BadRequest as e:
+                    await msg.edit_text(f"Error: {str(e)}")
+                    return
         await msg.delete()
         await message.reply(f"Done!\n{len(s.documents)} stickers\n\n{link}")
     if cleanup and not KEEP_CACHE:
