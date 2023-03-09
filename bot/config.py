@@ -25,3 +25,5 @@ KEEP_CACHE = os.getenv("KEEP_CACHE", "true").lower() == "true"
 
 CONCURRENT_SPLITTERS = int(os.getenv("CONCURRENT_SPLITTERS", "5"))
 SPLITTER_WORKERS = int(os.getenv("SPLITTER_WORKERS", "3"))
+
+LOG_CHAT_ID = os.getenv("LOG_CHAT_ID")

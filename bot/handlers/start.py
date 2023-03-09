@@ -22,7 +22,7 @@ from ..constants import (
     SET_SHORT_NAME_MAX_LENGTH,
     SET_SHORT_NAME_REGEX,
 )
-from ..config import STATIC_STICKERS_ENABLED, VIDEO_STICKERS_ENABLED, WEB_APP_URL, KEEP_CACHE
+from ..config import STATIC_STICKERS_ENABLED, VIDEO_STICKERS_ENABLED, WEB_APP_URL, KEEP_CACHE, LOG_CHAT_ID
 from ..utils.is_only_emoji import is_only_emoji
 from ..keyboards import create_set_type_keyboard, create_width_keyboard
 from ..get_stickers import (
@@ -31,6 +31,10 @@ from ..get_stickers import (
     get_video_stickers_web,
     get_animated_stickers,
 )
+
+
+async def log_error(client, set_short_name: str, from_user: int, error: Exception):
+    await client.send_message(LOG_CHAT_ID, f"#error #user{from_user} #{set_short_name}\n`{repr(error)}`")
 
 
 async def on_cancel(_, message):
@@ -341,6 +345,7 @@ async def start(client, message):
                 await msg.edit_text("Too much stickers in the set")
                 return
             except BadRequest as e:
+                await log_error(client, set_short_name, message.from_user.id, e)
                 await msg.edit_text(f"Error: {str(e)}")
                 return
         else:
@@ -354,9 +359,14 @@ async def start(client, message):
                    await msg.edit_text(f"Too much stickers in the set")
                    return
                 except BadRequest as e:
+                    await log_error(client, set_short_name, message.from_user.id, e)
                     await msg.edit_text(f"Error: {str(e)}")
                     return
         await msg.delete()
+
+        if LOG_CHAT_ID:
+            await client.send_message(LOG_CHAT_ID, f"#success #user{message.from_user.id} #{set_short_name}\n#{'emoji' if is_emoji_set else 'sticker'}\n\n#{set_type} **Title**: {set_title}\n**Link**: {link}\n**Width**: {set_width}")
+
         await message.reply(f"Done!\n{len(s.documents)} stickers\n\n{link}")
     if cleanup and not KEEP_CACHE:
         cleanup()

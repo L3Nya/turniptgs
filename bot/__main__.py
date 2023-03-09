@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import sys
 
 from loguru import logger
 from pyrogram.sync import idle
@@ -43,4 +45,8 @@ async def main():
 
 
 if __name__ == "__main__":
+    logger.remove()
+    logger.add(sys.stderr, level=logging.INFO)
+    logger.add("debug.log", level=logging.DEBUG)
+    logger.add("info.log", level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())
