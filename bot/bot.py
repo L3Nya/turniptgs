@@ -268,8 +268,8 @@ class Client(PyroClient):
 if TEST_MODE:
     logger.warning("running on a test server")
 bot = Client(
-    ":memory:",
-    in_memory=True,
+    "bot",
+    # in_memory=True,
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN,
