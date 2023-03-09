@@ -352,5 +352,5 @@ async def start(client, message):
         link += s.set.short_name
         await msg.delete()
         await message.reply(f"Done!\n{len(s.documents)} stickers\n\n{link}")
-    if cleanup:
+    if cleanup and not KEEP_CACHE:
         cleanup()

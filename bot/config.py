@@ -21,6 +21,7 @@ TEST_MODE = TEST_MODE.lower() == "true" or TEST_MODE == "1"
 WEB_APP_URL = os.getenv("WEB_APP_URL", None)
 VIDEO_STICKERS_ENABLED = os.getenv("VIDEO_STICKERS_ENABLED", "true").lower() == "true"
 STATIC_STICKERS_ENABLED = os.getenv("STATIC_STICKERS_ENABLED", "true").lower() == "true"
+KEEP_CACHE = os.getenv("KEEP_CACHE", "true").lower() == "true"
 
 CONCURRENT_SPLITTERS = int(os.getenv("CONCURRENT_SPLITTERS", "5"))
 SPLITTER_WORKERS = int(os.getenv("SPLITTER_WORKERS", "3"))
