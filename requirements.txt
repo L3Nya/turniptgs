@@ -1,6 +1,6 @@
 # pyrogram
 # until official gets layer 154 support:
-git+https://github.com/pyrogram/pyrogram@refs/pull/1233/merge
+git+https://github.com/pyrogram/pyrogram@refs/pull/1242/merge
 loguru
 tgcrypto
 emoji
